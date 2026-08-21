@@ -2,7 +2,7 @@ FROM php:8.4-apache
 
 RUN docker-php-ext-install mysqli pdo pdo_mysql
 
-RUN a2enmod rewrite headers
+RUN a2enmod rewrite headers status
 
 COPY apache/vhost.conf /etc/apache2/sites-available/webadmin.conf
 COPY apache/security.conf /etc/apache2/conf-available/webadmin-security.conf
