@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . 'config/database.php';
-require_once __DIR__ . 'src/auth.php';
-require_once __DIR__ . 'src/validation.php';
+require_once __DIR__ . '/config/database.php';
+require_once __DIR__ . '/src/auth.php';
+require_once __DIR__ . '/src/validation.php';
 
 requireAuthentication();
 
@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'password' => $hash,
         ]);
 
-        header('Location: usuarios.php');
+        header('Location: /usuarios.php');
         exit;
 
     } catch (PDOException $exception) {
@@ -73,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="css/pagina.css">
+    <link rel="stylesheet" href="/css/pagina.css">
     <title>WebAdmin - Crear usuario</title>
 </head>
 

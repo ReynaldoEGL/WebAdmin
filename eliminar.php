@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . 'config/database.php';
-require_once __DIR__ . 'src/auth.php';
+require_once __DIR__ . '/config/database.php';
+require_once __DIR__ . '/src/auth.php';
 
 requireAuthentication();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: usuarios.php');
+    header('Location: /usuarios.php');
     exit;
 }
 
