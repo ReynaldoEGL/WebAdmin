@@ -9,13 +9,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-require_once '../core/Router.php';
-require_once '../core/AuthMiddleware.php';
+require_once '/../core/Router.php';
+require_once '/../core/AuthMiddleware.php';
 
-require_once '../resources/v1/UserResource.php';
-require_once '../resources/v1/ProductResource.php';
+require_once '/../resources/v1/UserResource.php';
+require_once '/../resources/v1/ProductResource.php';
 
-require_once '../resources/v2/AuthResource.php';
+require_once '/../resources/v2/AuthResource.php';
 
 $scriptName = dirname($_SERVER['SCRIPT_NAME']);
 $basePath = $scriptName;
