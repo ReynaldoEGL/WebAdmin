@@ -1,10 +1,10 @@
 <?php
 class Database
 {
-    private $host = "dbmy";
-    private $db_name = "tap";
-    private $username = "root";
-    private $password = "password";
+    private $host = "localhost";
+    private $db_name = "bd_22030351";
+    private $username = "u22030351";
+    private $password = "22030351";
 
 
     public $conn;
