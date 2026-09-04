@@ -1,4 +1,5 @@
 <?php
+
 class Router
 {
     private $routes = [];
@@ -11,39 +12,96 @@ class Router
         $this->basePath = rtrim($basePath, '/');
     }
 
-    public function addRoute($method, $path, $handler)
+    public function addRoute($method, $path, $handler, $middleware = [])
     {
         $this->routes[] = [
             'method' => strtoupper($method),
             'path' => "/api/{$this->version}" . $path,
-            'handler' => $handler
+            'handler' => $handler,
+            'middleware' => $middleware
         ];
     }
 
     public function dispatch()
     {
-        $method = $_SERVER['REQUEST_METHOD'];
-        $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+        $method = strtoupper($_SERVER['REQUEST_METHOD']);
 
-        if (!empty($this->basePath) && strpos($uri, $this->basePath) === 0) {
-            $uri = substr($uri, strlen($this->basePath));
+        $uri = parse_url(
+            $_SERVER['REQUEST_URI'],
+            PHP_URL_PATH
+        );
+
+        if ($uri === false || $uri === null) {
+            $uri = '/';
         }
 
-        // Asegurar que la URI comience con 
+        if (
+            !empty($this->basePath) &&
+            strpos($uri, $this->basePath) === 0
+        ) {
+            $uri = substr(
+                $uri,
+                strlen($this->basePath)
+            );
+        }
+
         $uri = '/' . ltrim($uri, '/');
 
         foreach ($this->routes as $route) {
-            $pattern = preg_replace('/\{[a-zA-Z0-9_]+\}/', '([a-zA-Z0-9_-]+)', $route['path']);
+
+            $pattern = preg_replace(
+                '/\{[a-zA-Z0-9_]+\}/',
+                '([a-zA-Z0-9_-]+)',
+                $route['path']
+            );
+
             $pattern = '#^' . $pattern . '$#';
 
-            if ($route['method'] === $method && preg_match($pattern, $uri, $matches)) {
+            if (
+                $route['method'] === $method &&
+                preg_match($pattern, $uri, $matches)
+            ) {
+
+                // Ejecutar middleware
+                foreach ($route['middleware'] as $middleware) {
+
+                    if (!is_callable($middleware)) {
+                        http_response_code(500);
+
+                        header('Content-Type: application/json');
+
+                        echo json_encode([
+                            'error' => 'server_error',
+                            'message' => 'Middleware no válido'
+                        ]);
+
+                        return;
+                    }
+
+                    $result = call_user_func($middleware);
+
+                    if ($result === false) {
+                        return;
+                    }
+                }
+
                 array_shift($matches);
-                return call_user_func_array($route['handler'], $matches);
+
+                return call_user_func_array(
+                    $route['handler'],
+                    $matches
+                );
             }
         }
 
         http_response_code(404);
-        echo json_encode(['message' => 'Ruta no encontrada', 'uri' => $uri]);
+
+        header('Content-Type: application/json');
+
+        echo json_encode([
+            'message' => 'Ruta no encontrada',
+            'uri' => $uri
+        ]);
     }
 }
 ?>
