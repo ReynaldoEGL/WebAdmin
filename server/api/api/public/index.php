@@ -1,39 +1,81 @@
 <?php
 
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
+header(
+    "Access-Control-Allow-Origin: *"
+);
 
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+header(
+    "Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS"
+);
+
+header(
+    "Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With"
+);
+
+if (
+    $_SERVER['REQUEST_METHOD'] === 'OPTIONS'
+) {
     http_response_code(204);
     exit;
 }
 
+
+
 require_once __DIR__ . '/../core/Router.php';
 require_once __DIR__ . '/../core/AuthMiddleware.php';
 
-require_once __DIR__ . '/../resources/v1/UserResource.php';
-require_once __DIR__ . '/../resources/v1/ProductResource.php';
 
-require_once __DIR__ . '/../resources/v2/AuthResource.php';
 
-$scriptName = dirname($_SERVER['SCRIPT_NAME']);
-$basePath = $scriptName;
+require_once
+    __DIR__ . '/../resources/v1/UserResource.php';
+
+require_once
+    __DIR__ . '/../resources/v1/ProductResource.php';
+
+require_once
+    __DIR__ . '/../resources/v1/TareaResource.php';
+
+
+
+
+require_once
+    __DIR__ . '/../resources/v2/AuthResource.php';
+
+
+
+$scriptName =
+    dirname($_SERVER['SCRIPT_NAME']);
+
+$basePath =
+    rtrim($scriptName, '/');
 
 
 /*
 |--------------------------------------------------------------------------
-| V1 - SIN AUTENTICACIÓN
+| V1
+|--------------------------------------------------------------------------
+| Sin autenticación
 |--------------------------------------------------------------------------
 */
 
-$routerV1 = new Router('v1', $basePath);
+$routerV1 =
+    new Router(
+        'v1',
+        $basePath
+    );
 
-$userResourceV1 = new UserResource();
-$productResourceV1 = new ProductResource();
+$userResourceV1 =
+    new UserResource();
+
+$productResourceV1 =
+    new ProductResource();
 
 
-// USERS V1
+/*
+|--------------------------------------------------------------------------
+| USERS V1
+|--------------------------------------------------------------------------
+*/
 
 $routerV1->addRoute(
     'GET',
@@ -66,7 +108,11 @@ $routerV1->addRoute(
 );
 
 
-// PRODUCTS V1
+/*
+|--------------------------------------------------------------------------
+| PRODUCTS V1
+|--------------------------------------------------------------------------
+*/
 
 $routerV1->addRoute(
     'GET',
@@ -101,16 +147,29 @@ $routerV1->addRoute(
 
 /*
 |--------------------------------------------------------------------------
-| V2 - AUTENTICADA
+| V2
+|--------------------------------------------------------------------------
+| Autenticada
 |--------------------------------------------------------------------------
 */
 
-$routerV2 = new Router('v2', $basePath);
+$routerV2 =
+    new Router(
+        'v2',
+        $basePath
+    );
 
-$authResourceV2 = new AuthResource();
+$authResourceV2 =
+    new AuthResource();
 
 
-// LOGIN - PÚBLICO
+/*
+|--------------------------------------------------------------------------
+| LOGIN
+|--------------------------------------------------------------------------
+| Público
+|--------------------------------------------------------------------------
+*/
 
 $routerV2->addRoute(
     'POST',
@@ -119,7 +178,11 @@ $routerV2->addRoute(
 );
 
 
-// LOGOUT - PROTEGIDO
+/*
+|--------------------------------------------------------------------------
+| LOGOUT
+|--------------------------------------------------------------------------
+*/
 
 $routerV2->addRoute(
     'POST',
@@ -129,7 +192,11 @@ $routerV2->addRoute(
 );
 
 
-// ME - PROTEGIDO
+/*
+|--------------------------------------------------------------------------
+| ME
+|--------------------------------------------------------------------------
+*/
 
 $routerV2->addRoute(
     'GET',
@@ -139,9 +206,11 @@ $routerV2->addRoute(
 );
 
 
-// USERS V2
-// Se reutiliza UserResource.
-// La diferencia es que aquí el Router agrega AuthMiddleware.
+/*
+|--------------------------------------------------------------------------
+| USERS V2
+|--------------------------------------------------------------------------
+*/
 
 $routerV2->addRoute(
     'GET',
@@ -179,8 +248,11 @@ $routerV2->addRoute(
 );
 
 
-// PRODUCTS V2
-// Se reutiliza ProductResource con middleware.
+/*
+|--------------------------------------------------------------------------
+| PRODUCTS V2
+|--------------------------------------------------------------------------
+*/
 
 $routerV2->addRoute(
     'GET',
@@ -218,20 +290,81 @@ $routerV2->addRoute(
 );
 
 
+$routerTareas =
+    new Router(
+        '',
+        $basePath,
+        ''
+    );
+
+$tareaResource =
+    new TareaResource();
+
+
+$routerTareas->addRoute(
+    'GET',
+    '/tareas',
+    [$tareaResource, 'index']
+);
+
+$routerTareas->addRoute(
+    'GET',
+    '/tareas/{id}',
+    [$tareaResource, 'show']
+);
+
+$routerTareas->addRoute(
+    'POST',
+    '/tareas',
+    [$tareaResource, 'store']
+);
+
+$routerTareas->addRoute(
+    'PUT',
+    '/tareas/{id}',
+    [$tareaResource, 'update']
+);
+
+$routerTareas->addRoute(
+    'DELETE',
+    '/tareas/{id}',
+    [$tareaResource, 'destroy']
+);
+
+
 /*
 |--------------------------------------------------------------------------
-| Seleccionar versión
+| Selección del Router
 |--------------------------------------------------------------------------
 */
 
-$uri = parse_url(
-    $_SERVER['REQUEST_URI'],
-    PHP_URL_PATH
-);
+$uri =
+    parse_url(
+        $_SERVER['REQUEST_URI'],
+        PHP_URL_PATH
+    );
 
-if (strpos($uri, '/api/v2/') !== false) {
+
+if (
+    preg_match(
+        '#/api/v2(?:/|$)#',
+        $uri
+    )
+) {
+
     $routerV2->dispatch();
+
+} elseif (
+    preg_match(
+        '#^/tareas(?:/|$)#',
+        $uri
+    )
+) {
+
+    $routerTareas->dispatch();
+
 } else {
+
     $routerV1->dispatch();
 }
 

@@ -3,82 +3,164 @@
 class Router
 {
     private $routes = [];
+
     private $version;
+
     private $basePath;
 
-    public function __construct($version = 'v1', $basePath = '')
-    {
-        $this->version = $version;
-        $this->basePath = rtrim($basePath, '/');
+    private $prefix;
+
+    public function __construct(
+        $version = 'v1',
+        $basePath = '',
+        $prefix = '/api'
+    ) {
+        $this->version =
+            trim($version, '/');
+
+        $this->basePath =
+            rtrim($basePath, '/');
+
+        $this->prefix =
+            $prefix === ''
+                ? ''
+                : '/' . trim($prefix, '/');
     }
 
-    public function addRoute($method, $path, $handler, $middleware = [])
-    {
+    public function addRoute(
+        $method,
+        $path,
+        $handler,
+        $middleware = []
+    ) {
+        $path =
+            '/' . ltrim($path, '/');
+
+        if ($this->prefix !== '') {
+
+            $routePath =
+                $this->prefix .
+                '/' .
+                $this->version .
+                $path;
+
+        } else {
+
+            $routePath =
+                $path;
+        }
+
         $this->routes[] = [
-            'method' => strtoupper($method),
-            'path' => "/api/{$this->version}" . $path,
-            'handler' => $handler,
-            'middleware' => $middleware
+            'method' =>
+                strtoupper($method),
+
+            'path' =>
+                $routePath,
+
+            'handler' =>
+                $handler,
+
+            'middleware' =>
+                $middleware
         ];
     }
 
     public function dispatch()
     {
-        $method = strtoupper($_SERVER['REQUEST_METHOD']);
+        $method =
+            strtoupper(
+                $_SERVER['REQUEST_METHOD']
+            );
 
-        $uri = parse_url(
-            $_SERVER['REQUEST_URI'],
-            PHP_URL_PATH
-        );
+        $uri =
+            parse_url(
+                $_SERVER['REQUEST_URI'],
+                PHP_URL_PATH
+            );
 
-        if ($uri === false || $uri === null) {
+        if (
+            $uri === false ||
+            $uri === null
+        ) {
             $uri = '/';
         }
 
         if (
             !empty($this->basePath) &&
-            strpos($uri, $this->basePath) === 0
-        ) {
-            $uri = substr(
+            strpos(
                 $uri,
-                strlen($this->basePath)
-            );
+                $this->basePath
+            ) === 0
+        ) {
+
+            $uri =
+                substr(
+                    $uri,
+                    strlen($this->basePath)
+                );
         }
 
-        $uri = '/' . ltrim($uri, '/');
+        $uri =
+            '/' . ltrim($uri, '/');
 
-        foreach ($this->routes as $route) {
+        foreach (
+            $this->routes
+            as $route
+        ) {
 
-            $pattern = preg_replace(
-                '/\{[a-zA-Z0-9_]+\}/',
-                '([a-zA-Z0-9_-]+)',
-                $route['path']
-            );
+            $pattern =
+                preg_replace(
+                    '/\{[a-zA-Z0-9_]+\}/',
+                    '([a-zA-Z0-9_-]+)',
+                    $route['path']
+                );
 
-            $pattern = '#^' . $pattern . '$#';
+            $pattern =
+                '#^' .
+                $pattern .
+                '$#';
 
             if (
                 $route['method'] === $method &&
-                preg_match($pattern, $uri, $matches)
+                preg_match(
+                    $pattern,
+                    $uri,
+                    $matches
+                )
             ) {
 
-                // Ejecutar middleware
-                foreach ($route['middleware'] as $middleware) {
+                foreach (
+                    $route['middleware']
+                    as $middleware
+                ) {
 
-                    if (!is_callable($middleware)) {
+                    if (
+                        !is_callable(
+                            $middleware
+                        )
+                    ) {
+
                         http_response_code(500);
 
-                        header('Content-Type: application/json');
+                        header(
+                            'Content-Type: application/json'
+                        );
 
                         echo json_encode([
-                            'error' => 'server_error',
-                            'message' => 'Middleware no válido'
+                            'error' =>
+                                'server_error',
+
+                            'message' =>
+                                'Middleware no válido'
                         ]);
 
                         return;
                     }
 
-                    $result = call_user_func($middleware);
+                    $result =
+                        call_user_func(
+                            $middleware
+                        );
 
                     if ($result === false) {
                         return;
@@ -96,11 +178,16 @@ class Router
 
         http_response_code(404);
 
-        header('Content-Type: application/json');
+        header(
+            'Content-Type: application/json'
+        );
 
         echo json_encode([
-            'message' => 'Ruta no encontrada',
-            'uri' => $uri
+            'message' =>
+                'Ruta no encontrada',
+
+            'uri' =>
+                $uri
         ]);
     }
 }

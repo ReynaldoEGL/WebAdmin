@@ -1,0 +1,214 @@
+openapi: 3.0.3
+
+info:
+  title: WebAdmin - API de Gestión de Tareas
+  description: >
+    API REST desarrollada siguiendo el enfoque API-First.
+    El contrato OpenAPI define las operaciones disponibles
+    para la gestión de tareas.
+  version: 1.0.0
+
+servers:
+  - url: /
+
+tags:
+  - name: Tareas
+    description: Gestión de tareas
+
+paths:
+
+  /tareas:
+
+    get:
+      tags:
+        - Tareas
+
+      summary: Listar todas las tareas
+
+      operationId: listarTareas
+
+      responses:
+
+        '200':
+          description: Lista de tareas
+
+          content:
+            application/json:
+              schema:
+                type: array
+
+                items:
+                  $ref: '#/components/schemas/Tarea'
+
+
+    post:
+      tags:
+        - Tareas
+
+      summary: Crear una tarea
+
+      operationId: crearTarea
+
+      requestBody:
+        required: true
+
+        content:
+          application/json:
+
+            schema:
+              $ref: '#/components/schemas/TareaInput'
+
+      responses:
+
+        '201':
+          description: Tarea creada correctamente
+
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tarea'
+
+        '400':
+          description: Datos inválidos
+
+
+  /tareas/{id}:
+
+    parameters:
+
+      - name: id
+        in: path
+        required: true
+
+        description: Identificador de la tarea
+
+        schema:
+          type: integer
+          minimum: 1
+
+
+    get:
+      tags:
+        - Tareas
+
+      summary: Obtener una tarea
+
+      operationId: obtenerTarea
+
+      responses:
+
+        '200':
+          description: Tarea encontrada
+
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tarea'
+
+        '404':
+          description: Tarea no encontrada
+
+
+    put:
+      tags:
+        - Tareas
+
+      summary: Actualizar una tarea
+
+      operationId: actualizarTarea
+
+      requestBody:
+        required: true
+
+        content:
+          application/json:
+
+            schema:
+              $ref: '#/components/schemas/TareaInput'
+
+      responses:
+
+        '200':
+          description: Tarea actualizada correctamente
+
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tarea'
+
+        '400':
+          description: Datos inválidos
+
+        '404':
+          description: Tarea no encontrada
+
+
+    delete:
+      tags:
+        - Tareas
+
+      summary: Eliminar una tarea
+
+      operationId: eliminarTarea
+
+      responses:
+
+        '200':
+          description: Tarea eliminada correctamente
+
+        '404':
+          description: Tarea no encontrada
+
+
+components:
+
+  schemas:
+
+    Tarea:
+
+      type: object
+
+      required:
+        - id
+        - titulo
+        - completada
+        - fecha_creacion
+
+      properties:
+
+        id:
+          type: integer
+          example: 1
+
+        titulo:
+          type: string
+          example: Estudiar API-First
+
+        completada:
+          type: boolean
+          example: false
+
+        fecha_creacion:
+          type: string
+          format: date-time
+          example: '2026-09-07T10:00:00Z'
+
+
+    TareaInput:
+
+      type: object
+
+      required:
+        - titulo
+        - completada
+
+      properties:
+
+        titulo:
+          type: string
+          minLength: 1
+          example: Estudiar API-First
+
+        completada:
+          type: boolean
+          example: false

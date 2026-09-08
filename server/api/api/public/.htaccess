@@ -1,4 +1,10 @@
 RewriteEngine On
+
+# Conservar el encabezado Authorization al hacer la reescritura
+RewriteCond %{HTTP:Authorization} .
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+# Enviar las rutas que no son archivos/directorios a index.php
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ index.php [QSA,L]

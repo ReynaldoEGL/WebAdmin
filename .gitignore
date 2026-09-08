@@ -1,0 +1,13 @@
+# =========================================================
+# Docker local - API
+# =========================================================
+
+compose.api-local.yml
+docker/api/database.php
+
+# Datos locales de MariaDB
+docker-data/
+
+# Variables de entorno locales
+.env
+.env.local
