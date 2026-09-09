@@ -192,11 +192,11 @@ peticiones definidas en el contrato.
 
 Evidencia Swagger
 
-![EvidenciaSwagger](docs\images\swagger.png)
+![EvidenciaSwagger](/docs/images/swagger.png)
 
 Evidencia Postman
-![EvidenciaPostman1](docs\images\postman1.png)
+![EvidenciaPostman1](/docs/images/postman1.png)
 
-![EvidenciaPostman1](docs\images\postman2.png)
+![EvidenciaPostman1](/docs/images/postman2.png)
 
-![EvidenciaPostman1](docs\images\postman3.png)
+![EvidenciaPostman1](/docs/images/postman3.png)
