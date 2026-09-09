@@ -189,3 +189,14 @@ http://localhost:8080/api-docs/
 
 Swagger permite visualizar las operaciones disponibles y probar las
 peticiones definidas en el contrato.
+
+Evidencia Swagger
+
+![EvidenciaSwagger](docs\images\swagger.png)
+
+Evidencia Postman
+![EvidenciaPostman1](docs\images\postman1.png)
+
+![EvidenciaPostman1](docs\images\postman2.png)
+
+![EvidenciaPostman1](docs\images\postman3.png)
