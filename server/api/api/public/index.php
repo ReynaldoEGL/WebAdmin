@@ -41,7 +41,20 @@ require_once
 require_once
     __DIR__ . '/../resources/v2/AuthResource.php';
 
+require_once
+    __DIR__ . '/../core/PasswordSecurity.php';
 
+require_once
+    __DIR__ . '/../models/PasswordSecurityUser.php';
+
+require_once
+    __DIR__ . '/../models/PasswordSecurityHistory.php';
+
+require_once
+    __DIR__ . '/../resources/password-security/PasswordSecurityResource.php';
+
+require_once
+    __DIR__ . '/../resources/password-security/PasswordAuthResource.php';
 
 $scriptName =
     dirname($_SERVER['SCRIPT_NAME']);
@@ -331,6 +344,62 @@ $routerTareas->addRoute(
     [$tareaResource, 'destroy']
 );
 
+$routerPasswordSecurity =
+    new Router(
+        'v1',
+        $basePath
+    );
+
+$passwordSecurityResource =
+    new PasswordSecurityResource();
+
+$passwordAuthResource =
+    new PasswordAuthResource();
+
+$routerPasswordSecurity->addRoute(
+    'POST',
+    '/passwords/generate',
+    [
+        $passwordSecurityResource,
+        'generate'
+    ]
+);
+
+$routerPasswordSecurity->addRoute(
+    'POST',
+    '/passwords/validate',
+    [
+        $passwordSecurityResource,
+        'validate'
+    ]
+);
+
+$routerPasswordSecurity->addRoute(
+    'GET',
+    '/passwords/policy',
+    [
+        $passwordSecurityResource,
+        'policy'
+    ]
+);
+
+$routerPasswordSecurity->addRoute(
+    'POST',
+    '/auth/register',
+    [
+        $passwordAuthResource,
+        'register'
+    ]
+);
+
+$routerPasswordSecurity->addRoute(
+    'POST',
+    '/auth/login',
+    [
+        $passwordAuthResource,
+        'login'
+    ]
+);
 
 /*
 |--------------------------------------------------------------------------
@@ -362,6 +431,15 @@ if (
 ) {
 
     $routerTareas->dispatch();
+
+}  elseif (
+    preg_match(
+        '#^/api/v1/(passwords|auth)(?:/|$)#',
+        $uri
+    )
+) {
+
+    $routerPasswordSecurity->dispatch();
 
 } else {
 
